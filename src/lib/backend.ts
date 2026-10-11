@@ -1,6 +1,7 @@
 import { request as httpsRequest } from 'node:https';
+import type { IncomingMessage } from 'node:http';
 
-function validSchoolHost(value: string) {
+function validSchoolHost(value: string): boolean {
   const base = process.env.SCHOOL_BASE_DOMAIN ?? 'localhost';
   const platform = process.env.PLATFORM_HOST ?? 'platform.localhost';
   const match = /^([a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?)\.([a-z0-9.-]+)(?::([0-9]{1,5}))?$/i.exec(value);
@@ -12,18 +13,18 @@ type Transport = (url: URL, options: RequestInit) => Promise<Response>;
 
 // Node's HTTPS client preserves the virtual Host while connecting to a fixed
 // ingress. The built-in fetch transport can replace Host with its URL authority.
-const throughIngress: Transport = (url, options) => new Promise((resolve, reject) => {
+const throughIngress: Transport = (url: URL, options: RequestInit): Promise<Response> => new Promise<Response>((resolve: (value: Response | PromiseLike<Response>) => void, reject: (reason?: unknown) => void): void => {
   if (url.protocol !== 'https:') return reject(new Error('HTTPS ingress required'));
-  const request = httpsRequest(url, { headers: options.headers as Record<string, string>, signal: options.signal ?? undefined }, response => {
+  const request = httpsRequest(url, { headers: options.headers as Record<string, string>, signal: options.signal ?? undefined }, (response: IncomingMessage): void => {
     const chunks: Buffer[] = [];
     let size = 0;
-    response.on('data', (chunk: Buffer) => {
+    response.on('data', (chunk: Buffer): void => {
       size += chunk.length;
       if (size > 8192) request.destroy(new Error('Invalid public payload size'));
       else chunks.push(chunk);
     });
     response.on('error', reject);
-    response.on('end', () => resolve(new Response(Buffer.concat(chunks).toString('utf8'), { status: response.statusCode ?? 503 })));
+    response.on('end', (): void => resolve(new Response(Buffer.concat(chunks).toString('utf8'), { status: response.statusCode ?? 503 })));
   });
   request.on('error', reject);
   request.end();

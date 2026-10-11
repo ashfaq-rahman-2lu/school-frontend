@@ -1,6 +1,6 @@
-import { useId, type ComponentProps } from 'react';
+import { useId, type ComponentProps, type ReactElement } from 'react';
 
-export function Field({ label, error, id, name, ...props }: ComponentProps<'input'> & { label: string; error?: string }) {
+export function Field({ label, error, id, name, ...props }: ComponentProps<'input'> & { label: string; error?: string }): ReactElement {
   const generatedId = useId();
   const fieldId = id ?? name ?? generatedId;
   const errorId = `${fieldId}-error`;
@@ -11,9 +11,9 @@ export function Field({ label, error, id, name, ...props }: ComponentProps<'inpu
   </div>;
 }
 
-export function Button({ pending, children, disabled, ...props }: ComponentProps<'button'> & { pending?: boolean }) {
+export function Button({ pending, children, disabled, ...props }: ComponentProps<'button'> & { pending?: boolean }): ReactElement {
   return <button {...props} disabled={pending || disabled} aria-busy={pending ? true : undefined}>{pending ? 'Saving…' : children}</button>;
 }
 
-export function EmptyState({ message }: { message: string }) { return <p>{message}</p>; }
-export function LoadingState() { return <p role="status">Loading…</p>; }
+export function EmptyState({ message }: { message: string }): ReactElement { return <p>{message}</p>; }
+export function LoadingState(): ReactElement { return <p role="status">Loading…</p>; }

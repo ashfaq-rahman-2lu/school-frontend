@@ -1,4 +1,6 @@
-export function SchoolShell({ name }: { name: string }) {
+import type { ReactElement } from 'react';
+
+export function SchoolShell({ name }: { name: string }): ReactElement {
   return (
     <>
       <a className="skip-link" href="#main-content">Skip to content</a>
@@ -21,6 +23,6 @@ export function SchoolShell({ name }: { name: string }) {
   );
 }
 
-export function UnavailableSchool() {
+export function UnavailableSchool(): ReactElement {
   return <main id="main-content" className="unavailable"><h1>School unavailable</h1><p>Please try again later.</p></main>;
 }
